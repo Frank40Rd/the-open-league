@@ -66,6 +66,9 @@ class DefillamaDeFiTVLBackend(CalculationBackend):
         res = requests.get(f"https://coins.llama.fi/prices/historical/{timestamp}/{TON}?searchWidth=4h").json()
         return res['coins'][TON]['price']
 
+    def get_wallet_balance(self, address: str):
+        return self.executor.get_wallet_balance(address)
+
     def _do_calculate(self, config: SeasonConfig, dry_run: bool = False):
         # Start with estimated excluded TVL from boosted pools using on-chain data only
         current_ton_rate = self.ton_rate(min(int(time.time()), config.end_time))
@@ -114,6 +117,8 @@ class DefillamaDeFiTVLBackend(CalculationBackend):
             correction_snapshot = -1 * excluded_snapshot.get(project.name, 0)
             logger.info(f"{project.name}: {snapshot_tvl}({correction_snapshot}) => {latest_tvl}({correction_latest})")
             
+            wallet_balance = self.get_wallet_balance(project.wallet_address)
+            logger.info(f"Wallet balance for {project.wallet_address}: {wallet_balance}")
 
             results.append(ProjectStat(
                 name=project.name,
@@ -127,6 +132,7 @@ class DefillamaDeFiTVLBackend(CalculationBackend):
                                                         - snapshot_tvl - correction_snapshot),
                     ProjectStat.URL: project.url,
                     ProjectStat.PRIZES: project.prizes,
+                    ProjectStat.WALLET_BALANCE: wallet_balance,
                 }
             ))
 

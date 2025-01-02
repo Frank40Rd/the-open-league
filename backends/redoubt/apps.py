@@ -31,6 +31,9 @@ class RedoubtAppBackend(CalculationBackend):
             """)
             return cursor.fetchone()['last_time']
 
+    def get_wallet_balance(self, address: str):
+        return self.executor.get_wallet_balance(address)
+
     def _do_calculate(self, config: SeasonConfig, dry_run: bool = False):
         logger.info("Requesting token new holders stats for the apps with tokens")
         PROJECTS = []

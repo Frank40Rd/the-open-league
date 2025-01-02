@@ -24,6 +24,9 @@ class DefillamaDeFiVolumeBackend(CalculationBackend):
         # use the current time for now
         return int(time.time())
 
+    def get_wallet_balance(self, address: str):
+        return self.executor.get_wallet_balance(address)
+
     def _do_calculate(self, config: SeasonConfig, dry_run: bool = False):
         logger.info("Running DeFiLlama backend for DeFi leaderboard (Volume)")
         results: List[ProjectStat] = []
@@ -64,11 +67,15 @@ class DefillamaDeFiVolumeBackend(CalculationBackend):
                 
             logger.info(f"Total volume for {project.name}: {sum_volume}$")
 
+            wallet_balance = self.get_wallet_balance(project.wallet_address)
+            logger.info(f"Wallet balance for {project.wallet_address}: {wallet_balance}")
+
             results.append(ProjectStat(
                 name=project.name,
                 metrics={
                     ProjectStat.DEFI_VOLUME_USD: sum_volume,
                     ProjectStat.URL: project.url,
+                    ProjectStat.WALLET_BALANCE: wallet_balance,
                 }
             ))
 

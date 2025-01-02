@@ -33,6 +33,10 @@ class ToncenterCppAppsScores2Projects(CalculationBackend):
             """)
             return cursor.fetchone()['last_time']
 
+    def get_wallet_balance(self, address: str):
+        # Pd950
+        return self.executor.get_wallet_balance(address)
+
     def _do_calculate(self, config: SeasonConfig, dry_run: bool = False):
 
         logger.info("Running toncenter backend for App leaderboard SQL generation, projects version")
@@ -56,7 +60,8 @@ class ToncenterCppAppsScores2Projects(CalculationBackend):
           group by address having count(1) > 1
         )
         select project, url, count(distinct address) as total_uaw, coalesce(sum(eligible), 0) as enrolled_wallets,
-        coalesce(cast(sum(points) / sum(eligible) as int), 0) as average_score, coalesce(sum(points), 0) as total_points
+        coalesce(cast(sum(eligible) as int), 0) as average_score, coalesce(sum(points), 0) as total_points,
+        coalesce(sum(wallet_balance), 0) as wallet_balance
         from project_names 
         left join apps_users_stats using(project)
         left join eligible using(address)
@@ -83,7 +88,8 @@ class ToncenterCppAppsScores2Projects(CalculationBackend):
                             ProjectStat.APP_ONCHAIN_UAW: row['total_uaw'],
                             ProjectStat.APP_ONCHAIN_ENROLLED_UAW: row['enrolled_wallets'],
                             ProjectStat.APP_AVERAGE_SCORE: row['average_score'],
-                            ProjectStat.APP_TOTAL_POINTS: row['total_points']
+                            ProjectStat.APP_TOTAL_POINTS: row['total_points'],
+                            ProjectStat.WALLET_BALANCE: row['wallet_balance']
                         }
                     )
 
@@ -91,4 +97,3 @@ class ToncenterCppAppsScores2Projects(CalculationBackend):
             logger.info("Main query finished")
             
         return CalculationResults(ranking=results.values(), build_time=1)
-

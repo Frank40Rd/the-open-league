@@ -31,3 +31,7 @@ class TonapiAdapter:
         code = to_b64(state.refs[0])
         data = to_b64(state.refs[1])
         return code, data
+
+    def get_wallet_balance(self, address):
+        res = requests.get(f'https://tonapi.io/v2/accounts/{quote_plus(address)}', headers=self.auth_header).json()
+        return res['balance']

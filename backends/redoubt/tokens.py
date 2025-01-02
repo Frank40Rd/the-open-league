@@ -24,6 +24,9 @@ class RedoubtTokensBackend(CalculationBackend):
             """)
             return cursor.fetchone()['update_time']
 
+    def get_wallet_balance(self, address: str):
+        return self.executor.get_wallet_balance(address)
+
     def _do_calculate(self, config: SeasonConfig, dry_run: bool = False):
         logger.info("Running re:doubt backend for Token leaderboard SQL generation")
         PROJECTS = []

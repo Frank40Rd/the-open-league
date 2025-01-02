@@ -1,4 +1,3 @@
-
 """
 Main class for all calculation backends
 """
@@ -34,4 +33,7 @@ class CalculationBackend:
         raise NotImplemented()
 
     def _do_calculate(self, config: SeasonConfig, dry_run: bool = False):
+        raise NotImplemented()
+
+    def get_wallet_balance(self, address: str):
         raise NotImplemented()
